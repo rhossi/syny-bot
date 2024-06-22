@@ -8,4 +8,4 @@ run:
   runtime-version: 3.11
   command: python3 api.py
   network:
-    port:8000
+    - port:8000
