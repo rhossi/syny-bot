@@ -9,3 +9,6 @@ run:
   pre-run: 
     - pip3 install -r requirements.txt
   command: python3 api.py
+  env:
+    - name: OPENAI_API_KEY
+    - value: "sk-proj-34gmnYXvYqXUnBx6Rv8AT3BlbkFJkXXqBgAnkVAO1I7tmxjY"
