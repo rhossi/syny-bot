@@ -3,6 +3,8 @@ runtime: python311
 build:
   commands:
     build:
-      - pip3 install -r requirements.txt
+      - python3 -m venv .
+      - source bin/activate
+      - pip install -r requirements.txt
 run:
-  command: python3 api.py
+  command: python api.py
