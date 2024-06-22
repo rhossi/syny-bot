@@ -11,4 +11,4 @@ run:
   command: python3 api.py
   env:
     - name: OPENAI_API_KEY
-    - value: "sk-proj-34gmnYXvYqXUnBx6Rv8AT3BlbkFJkXXqBgAnkVAO1I7tmxjY"
+      value: "sk-proj-34gmnYXvYqXUnBx6Rv8AT3BlbkFJkXXqBgAnkVAO1I7tmxjY"
