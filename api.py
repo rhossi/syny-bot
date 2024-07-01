@@ -8,11 +8,12 @@ from langchain_core.prompts import PromptTemplate
 from langchain_core.runnables import RunnablePassthrough
 from operator import itemgetter
 import sqlalchemy as db
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
 from twilio.twiml.messaging_response import MessagingResponse
 from flask import Flask, request
 import sys
@@ -32,6 +33,9 @@ build_sql_prompt = PromptTemplate.from_file('prompts/build_sql.txt')
 
 ### summary prompt
 summary_prompt = PromptTemplate.from_file('prompts/summary.txt')
+
+### help prompt
+help_prompt = PromptTemplate.from_file('prompts/help.txt')
 
 # db setup
 Base = declarative_base()
@@ -55,6 +59,26 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # app
+class User(Base):
+    __tablename__ = 'users'
+    user_id = Column(Integer, primary_key=True)
+    name = Column(String)
+    credential_id = Column(Integer, ForeignKey('credentials.credential_id'))
+    credential = relationship("Credential", back_populates="user")
+
+class Credential(Base):
+    __tablename__ = 'credentials'
+    credential_id = Column(Integer, primary_key=True)
+    phone = Column(String)
+    user = relationship("User", back_populates="credential")
+
+class UserCustomer(Base):
+    __tablename__ = 'user_customer'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.user_id'))
+    customer_id = Column(Integer)
+    user = relationship("User")
+
 class Interaction(Base):
     __tablename__ = 'interactions'
     __table_args__ = {'schema': 'public'}
@@ -84,6 +108,26 @@ def save_interaction(**kwargs):
     finally:
         session.close()
 
+def find_user_by_phone(phone):
+    query = session.query(User.name, UserCustomer.customer_id).\
+    join(Credential, User.credential_id == Credential.credential_id).\
+    join(UserCustomer, User.user_id == UserCustomer.user_id).\
+    filter(Credential.phone == phone)
+
+    customer_name = ''
+    customer_ids = []
+
+    results = query.all()
+
+    for name, customer_id in results:
+        if customer_name == '':
+            customer_name = name
+        
+        customer_ids.append(customer_id)
+
+    return { "customer_name": customer_name, "customer_ids": customer_ids}
+    
+
 app = Flask(__name__)
 
 def random_default_response():
@@ -102,18 +146,19 @@ def random_default_response():
 
     return random.choice(funny_responses)
 
-def respond_with_ai(input):
+def respond_with_ai(question):
     previous_question = ''
     previous_datapoints = ''
     final_response = ''
-    question = input
 
-    customer_id = "00000000-6581-f04c-75f9-3601bf8ba2fe"
+    user_info = find_user_by_phone('+14043045909')
+    logger.info(user_info)
 
     logger.info("validating question")
     chain = validate_question_prompt | llm
     response = chain.invoke(input={"question":question, "previous_question": previous_question})
-    
+    logger.info(response)
+
     match response.content:
         case "INVALID_QUESTION":
             logger.info("INVALID_QUESTION")
@@ -126,11 +171,19 @@ def respond_with_ai(input):
             summary_result = response.content
             logger.info(response)
             final_response = respond(summary_result)
+        case "VALID_HELP_QUESTION":
+            logger.info("VALID_HELP_QUESTION")
+            logger.info("## summary")
+            chain = help_prompt | llm
+            response = chain.invoke(input={"customer_name":user_info["customer_name"]})
+            summary_result = response.content
+            logger.info(response)
+            final_response = respond(summary_result)
         case "VALID_SQL_QUESTION":
             logger.info("# VALID_SQL_QUESTION")
             logger.info("## building SQL")
             chain = build_sql_prompt | llm
-            response = chain.invoke(input={"question":question, "customer_id":customer_id})
+            response = chain.invoke(input={"question":question, "customer_ids":user_info['customer_ids']})
             sql_query = response.content
             sql_query_generated = sql_query
 
@@ -167,10 +220,12 @@ def respond(message):
 @app.route('/message', methods=['POST'])
 def reply():
     message = request.form.get('Body').lower()
-    
+    from_ = request.form.get('From')
+
     if message:
-        logger.debug("got message: " + message)
-        print(message)
+        logger.info("got message: " + message)
+        logger.info("from: " + from_)
+
         return respond_with_ai(message)
     
 
