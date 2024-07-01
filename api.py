@@ -131,27 +131,28 @@ def find_user_by_phone(phone):
 app = Flask(__name__)
 
 def random_default_response():
-    funny_responses = [
-        "Eita, peguei um bug mental aqui! 🐛🧠 Melhor chamar os exterminadores de problemas em sac@syny.com.br!",
-        "Opa, tô mais perdido que pinguim no deserto! 🐧🏜️ Dá um toque no sac@syny.com.br, eles são melhores que GPS!",
-        "Puts, deu tela azul no meu cérebro! 💻💥 Chama os hackers do bem em sac@syny.com.br pra um resgate!",
-        "Vixe, tô mais enrolado que fone de ouvido no bolso! 🎧🌀 Desenrola essa com a galera do sac@syny.com.br!",
-        "Epa, meu banco de dados tá mais vazio que geladeira de estudante! 🍽️ Abastece com o pessoal do sac@syny.com.br!",
-        "Opa, tô mais confuso que gato em banheira! 🐱🛁 Joga a boia pro sac@syny.com.br, eles sabem nadar nessas águas!",
-        "Caramba, me sinto um peixe tentando andar de bicicleta! 🐠🚲 Pedala até o sac@syny.com.br pra uma ajudinha!",
-        "Poxa, meu código tá mais bagunçado que quarto de adolescente! 🧑‍🦱💻 Chama a faxina tech do sac@syny.com.br!",
-        "Opa, tô mais travado que porta de banco! 🚪🏦 Destranca essa com a chave-mestra do sac@syny.com.br!",
-        "Eita, meu processador tá fumegando! 🔥💻 Chama os bombeiros digitais do sac@syny.com.br pra apagar esse incêndio!"
+    formal_responses = [
+        "Infelizmente, não tenho a capacidade de ajudar com essa solicitação específica. Para mais informações sobre como posso ajudar, me pergunte: Como você pode me ajudar?",
+        "Essa questão está fora do escopo das minhas capacidades. Se quiser saber mais como posso lhe ajudar, me pergunte: Como você pode me ajudar?",
+        "Não sou capaz de fornecer assistência para esse assunto. Para descobrir como posso ajudar, me pergunte: Como você pode me ajudar?",
+        "Desculpe, mas não tenho como auxiliar com essa solicitação. Se quiser saber mais como posso lhe ajudar, me pergunte: Como você pode me ajudar?",
+        "Esta questão não está dentro do meu campo de atuação. Para mais informações sobre como posso ajudar, me pergunte: Como você pode me ajudar?",
+        "Lamento, mas não posso ajudar com essa solicitação específica. Se quiser saber mais como posso lhe ajudar, me pergunte: Como você pode me ajudar?",
+        "Não tenho a capacidade de resolver essa questão. Para descobrir mais sobre como posso ajudar, me pergunte: Como você pode me ajudar?",
+        "Desculpe, essa solicitação está fora do meu alcance. Se quiser saber mais como posso lhe ajudar, me pergunte: Como você pode me ajudar?",
+        "Essa questão está além do que posso oferecer suporte. Para mais informações sobre como posso ajudar, me pergunte: Como você pode me ajudar?",
+        "Infelizmente, não posso auxiliar com essa solicitação específica. Para saber mais sobre como posso ajudar, me pergunte: Como você pode me ajudar?"
     ]
 
-    return random.choice(funny_responses)
 
-def respond_with_ai(question):
+    return random.choice(formal_responses)
+
+def respond_with_ai(from_, question):
     previous_question = ''
     previous_datapoints = ''
     final_response = ''
 
-    user_info = find_user_by_phone('+14043045909')
+    user_info = find_user_by_phone(from_)
     logger.info(user_info)
 
     logger.info("validating question")
@@ -226,7 +227,7 @@ def reply():
         logger.info("got message: " + message)
         logger.info("from: " + from_)
 
-        return respond_with_ai(message)
+        return respond_with_ai(from_, message)
     
 
 if __name__ == "__main__":
