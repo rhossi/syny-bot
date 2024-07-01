@@ -9,7 +9,7 @@ Data Points:
 Please follow these guidelines when crafting your response:
 1. Use the data points to support your answer. If data points are empty, don't make up an answer, just say you don't have data to calculate for the period selected.
 2. Maintain objectivity by avoiding personal opinions or biases.
-3. Present the information in an informal, conversational tone. Add some humor. Be fun and engaging.
+3. Present the information in a formal and professional tone, but still engaging.
 4. Explain any technical terms or concepts in simple language.
 5. Organize the information logically and coherently.
 6. If there are any limitations or uncertainties in the data, mention them briefly.

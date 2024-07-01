@@ -19,7 +19,7 @@ from flask import Flask, request
 import sys
 import logging
 import random
-
+import re
 # llm setup
 llm = ChatOpenAI(temperature=0, model="gpt-4o")
 
@@ -222,12 +222,13 @@ def respond(message):
 def reply():
     message = request.form.get('Body').lower()
     from_ = request.form.get('From')
+    phone_number = re.search(r"\+?\d+", from_).group()
 
     if message:
         logger.info("got message: " + message)
-        logger.info("from: " + from_)
+        logger.info("from: " + phone_number)
 
-        return respond_with_ai(from_, message)
+        return respond_with_ai(phone_number, message)
     
 
 if __name__ == "__main__":
