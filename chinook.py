@@ -13,6 +13,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from repository import Repository
 import sys
 import logging
 
@@ -23,49 +24,21 @@ Base = declarative_base()
 db_uri = "postgresql://postgres:d9q4Juye$e@synydb.crae42w04nzr.us-east-1.rds.amazonaws.com:5432/postgres"
 db = SQLDatabase.from_uri(db_uri, sample_rows_in_table_info=3)
 
+repository = Repository(db_uri)
+
 engine = create_engine(db_uri)
 Session = sessionmaker(bind=engine)
 session = Session()
 
 logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+# logger.setLevel(logging.INFO)
 
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.INFO)
+# handler = logging.StreamHandler(sys.stdout)
+# handler.setLevel(logging.INFO)
 
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-class Interaction(Base):
-    __tablename__ = 'interactions'
-    __table_args__ = {'schema': 'public'}
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    question_asked = Column(String)
-    sql_query_generated = Column(String)
-    sql_query_result = Column(String)
-    summary_result = Column(String)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-
-def save_interaction(**kwargs):
-    try:
-        new_interaction = Interaction(
-            question_asked=kwargs["question_asked"],
-            sql_query_generated=kwargs["sql_query_generated"],
-            sql_query_result=kwargs["sql_query_result"],
-            summary_result=kwargs["summary_result"]
-        )
-
-        session.add(new_interaction)
-        session.commit()
-        logger.info(f"New interaction created - {kwargs}")
-    except Exception as e:
-        logger.error(f"Error creating new interaction: {e}")
-        session.rollback()
-    finally:
-        session.close()
-
+# formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# handler.setFormatter(formatter)
+# logger.addHandler(handler)
 
 ### loading prompts
 
@@ -78,6 +51,9 @@ build_sql_prompt = PromptTemplate.from_file('prompts/build_sql.txt')
 ### summary prompt
 summary_prompt = PromptTemplate.from_file('prompts/summary.txt')
 
+### help prompt
+help_prompt = PromptTemplate.from_file('prompts/help.txt')
+
 print("Enter text (press CTRL+C to exit):")
 
 try:
@@ -86,7 +62,9 @@ try:
     question = ''
 
     while True:
-        customer_id = "00000000-6581-f04c-75f9-3601bf8ba2fe"
+        user_info = repository.find_user_by_phone("+14043045909")
+        logger.info(user_info)
+
         question = input()
 
         logger.info("validating question")
@@ -104,11 +82,18 @@ try:
                 response = chain.invoke(input={"question":question, "datapoints":previous_datapoints})
                 summary_result = response.content
                 logger.info(response)
+            case "VALID_HELP_QUESTION":
+                logger.info("VALID_HELP_QUESTION")
+                logger.info("## summary")
+                chain = help_prompt | llm
+                response = chain.invoke(input={"customer_name":user_info["customer_name"]})
+                summary_result = response.content
+                logger.info(response)
             case "VALID_SQL_QUESTION":
                 logger.info("# VALID_SQL_QUESTION")
                 logger.info("## building SQL")
                 chain = build_sql_prompt | llm
-                response = chain.invoke(input={"question":question, "customer_id":customer_id})
+                response = chain.invoke(input={"question":question, "customer_ids":user_info['customer_ids']})
                 sql_query = response.content
                 sql_query_generated = sql_query
 
@@ -125,7 +110,7 @@ try:
                 summary_result = response.content
                 logger.info(response)
 
-                save_interaction(
+                repository.save_interaction(
                     question_asked=question, 
                     sql_query_generated=sql_query_generated,
                     sql_query_result=datapoints,

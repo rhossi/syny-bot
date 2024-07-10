@@ -14,10 +14,10 @@ TABLE public.device_twin_variable_histories (
 Additional Instructions:
 ALL queries must have one or more customer_ids filter using {customer_ids}
 ALL queries should have a name = 'Água Medida' filter
-Use the column value to get the consumption
-Use the column unit to format the consumption
-Use the created_at to filter the date range
-All queries should be aggregated for the period of time specified by the user
+USE the column value to get the consumption. Values in that column are cumulative
+USE the column unit to format the consumption
+USE the created_at to filter the date range
+ALL queries should be aggregated for the period of time specified by the user
 
 Please generate a SQL query that answers the question while adhering to the provided table schema and following any additional instructions. Ensure that the query is compatible with PostgreSQL syntax and best practices. 
 

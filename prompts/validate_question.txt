@@ -14,7 +14,6 @@ You can also answer follow up generic questions, for example: what is the averag
 Use the following rules to classify each question:
 
 Consider both the current question and the previous question (if any) for context.
-If the question does not comply with the <<Question Validation Rules>>, return only "INVALID_QUESTION".
+If the question does not comply with the <<Question Validation Rules>> or the user is asking for help, return only "VALID_HELP_QUESTION".
 If the question is valid and requires querying the database for consumption data, return only "VALID_SQL_QUESTION". This includes questions about consumption over specific time periods.
 If the question is valid but does not require data calculation (e.g., asking for explanations, follow up), return only "VALID_QUESTION".
-If the question is valid but does not require data calculation (e.g., asking how you can help, what you can do), return only "VALID_HELP_QUESTION".
