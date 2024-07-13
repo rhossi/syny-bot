@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import redis
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
+from twilio.rest import Client
 from langchain_community.utilities import SQLDatabase
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
@@ -20,16 +21,23 @@ from langchain.agents import AgentExecutor
 import psycopg2
 from psycopg2 import sql
 from datetime import datetime, timedelta, timezone
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Configuration
 class Config:
-    DB_URI = os.getenv('DATABASE_URI', "postgresql://postgres:d9q4Juye$e@synydb.crae42w04nzr.us-east-1.rds.amazonaws.com:5432/postgres")
-    LLM_MODEL = "gpt-4o"
-    PORT = 8080
-    REDIS_URL = "redis://clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com:6379"
-    # REDIS_URL = "redis://localhost:6379/0"
+    DB_URI = os.getenv('DATABASE_URI')
+    LLM_MODEL = os.getenv('LLM_MODEL')
+    PORT = os.getenv('PORT')
+    # REDIS_URL = "rediss://clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com:6379/0"
+    REDIS_URL = os.getenv('REDIS_URL')
+    TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+    TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
 
-redis_client = redis.Redis(host='clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com', decode_responses=True, ssl=True, port=6379, db=0)
+app = Flask(__name__)
+
+#redis_client = redis.Redis(host='clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com', decode_responses=True, ssl=True, port=6379, db=0)
 
 # Setup logging
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -37,17 +45,15 @@ redis_client = redis.Redis(host='clustercfg.synybot-cache.c6qmed.use1.cache.amaz
 
 # Initialize components
 llm = ChatOpenAI(temperature=0, model=Config.LLM_MODEL)
-repository = Repository(Config.DB_URI)
+
+redis_client = redis.from_url(Config.REDIS_URL)
+
+twilio_client = Client(Config.TWILIO_ACCOUNT_SID, Config.TWILIO_AUTH_TOKEN)
+
 db = SQLDatabase.from_uri(Config.DB_URI, sample_rows_in_table_info=3)
+repository = Repository(Config.DB_URI)
 
-# Load prompts
-# validate_question_prompt = PromptTemplate.from_file('prompts/validate_question.txt')
-# build_sql_prompt = PromptTemplate.from_file('prompts/build_sql.txt')
-# summary_prompt = PromptTemplate.from_file('prompts/summary.txt')
-# help_prompt = PromptTemplate.from_file('prompts/help.txt')
-
-app = Flask(__name__)
-
+# App Code
 def respond(message: str) -> str:
     response = MessagingResponse()
     response.message(message)
@@ -126,70 +132,6 @@ def get_water_consumption(customer_id, start_date, end_date):
 
 
 tools = [get_water_consumption]
-    
-# def respond_with_ai(phone_number: str, question: str) -> str:
-#     previous_question = ''
-#     previous_datapoints = ''
-
-#     try:
-#         user_info = repository.find_user_by_phone(phone_number)
-#         logger.info(f"User info: {user_info}")
-
-#         logger.info("Validating question")
-#         chain = validate_question_prompt | llm
-#         response = chain.invoke(input={"question": question, "previous_question": previous_question})
-#         logger.info(f"Validation response: {response}")
-
-#         match response.content:
-#             case "INVALID_QUESTION":
-#                 return respond(random_default_response())
-#             case "VALID_QUESTION":
-#                 return handle_valid_question(question, previous_datapoints)
-#             case "VALID_HELP_QUESTION":
-#                 return handle_help_question(user_info)
-#             case "VALID_SQL_QUESTION":
-#                 return handle_sql_question(question, user_info)
-#             case _:
-#                 return respond(random_default_response())
-#     except Exception as e:
-#         logger.error(f"Error in respond_with_ai: {e}")
-#         return respond("Desculpe, ocorreu um erro. Por favor, tente novamente mais tarde.")
-
-# def handle_valid_question(question: str, previous_datapoints: str) -> str:
-#     logger.info("Handling valid question")
-#     chain = summary_prompt | llm
-#     response = chain.invoke(input={"question": question, "datapoints": previous_datapoints})
-#     return respond(response.content)
-
-# def handle_help_question(user_info: Dict[str, Any]) -> str:
-#     logger.info("Handling help question")
-#     chain = help_prompt | llm
-#     response = chain.invoke(input={"customer_name": user_info["customer_name"]})
-#     return respond(response.content)
-
-# def handle_sql_question(question: str, user_info: Dict[str, Any]) -> str:
-#     logger.info("Handling SQL question")
-#     chain = build_sql_prompt | llm
-#     response = chain.invoke(input={"question": question, "customer_ids": user_info['customer_ids']})
-#     sql_query = response.content
-
-#     try:
-#         datapoints = db.run(sql_query)
-#         chain = summary_prompt | llm
-#         response = chain.invoke(input={"question": question, "datapoints": datapoints})
-#         summary_result = response.content
-
-#         repository.save_interaction(
-#             question_asked=question,
-#             sql_query_generated=sql_query,
-#             sql_query_result=datapoints,
-#             summary_result=summary_result
-#         )
-
-#         return respond(summary_result)
-#     except Exception as e:
-#         logger.error(f"Error executing SQL query: {e}")
-#         return respond("Desculpe, ocorreu um erro ao processar sua pergunta. Por favor, tente novamente.")
 
 def process_message(phone_number: str, message: str) -> str:
     user_info = repository.find_user_by_phone(phone_number)
@@ -231,13 +173,19 @@ def reply():
     response = ''
     if message and phone_number_match:
         phone_number = phone_number_match.group()
-
-        # logger.info(f"Received message: {message} from: {phone_number.group()}")
         response = process_message(phone_number, message)
     else:
         response = "Desculpe, não encontramos o usuário associado a este número de telefone. Por favor entre em contato com o suporte."
     
     return respond(response)
 
+# Function to send a message when processing is complete
+def send_completion_message(task):
+    print("send_completion_message")
+    result = task.result
+    twilio_client.messages.create(to='whatsapp:phone_number', from_='whatsapp:+14155238886', body=result)
+    print(f"Sending completion message to user: {result}")
+
 if __name__ == "__main__":
+    print(app.name)
     app.run(host="0.0.0.0", port=Config.PORT, debug=True)
