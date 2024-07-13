@@ -23,7 +23,7 @@ class Repository:
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
-        
+
         engine = create_engine(db_uri)
         Session = sessionmaker(bind=engine)
         self.session = Session()
@@ -47,11 +47,13 @@ class Repository:
             self.session.close()
 
     def find_user_by_phone(self, phone):
+        print(phone)
         query = self.session.query(User.name, UserCustomer.customer_id).\
         join(Credential, User.credential_id == Credential.credential_id).\
         join(UserCustomer, User.user_id == UserCustomer.user_id).\
         filter(Credential.phone == phone)
-
+        print(query)
+        
         customer_name = ''
         customer_ids = []
 

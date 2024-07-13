@@ -8,6 +8,7 @@ appnope==0.1.4
 asttokens==2.4.1
 attrs==23.2.0
 blinker==1.8.2
+cachetools==5.3.3
 certifi==2024.6.2
 charset-normalizer==3.3.2
 click==8.1.7
@@ -81,6 +82,7 @@ python-dotenv==1.0.1
 python-multipart==0.0.9
 PyYAML==6.0.1
 pyzmq==26.0.3
+redis==5.0.7
 regex==2024.5.15
 requests==2.32.3
 rich==13.7.1
