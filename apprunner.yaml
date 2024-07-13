@@ -12,3 +12,15 @@ run:
   env:
     - name: OPENAI_API_KEY
       value: "sk-proj-34gmnYXvYqXUnBx6Rv8AT3BlbkFJkXXqBgAnkVAO1I7tmxjY"
+    - name: TWILIO_AUTH_TOKEN
+      value: "29c51f74368c481a2cddf99640e91e27"
+    - name: TWILIO_ACCOUNT_SID
+      value: "ACc2fbd4e58e9b41d1afd01af1cf2c958a"
+    - name: REDIS_URL
+      value: "redis://localhost:6379/0"
+    - name: LLM_MODEL
+      value: "gpt-4o"
+    - name: PORT
+      value: "8080"
+    - name: DATABASE_URI
+      value: "postgresql://postgres:d9q4Juye$e@synydb.crae42w04nzr.us-east-1.rds.amazonaws.com:5432/postgres"
