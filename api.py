@@ -29,7 +29,7 @@ class Config:
     REDIS_URL = "redis://clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com:6379"
     # REDIS_URL = "redis://localhost:6379/0"
 
-redis_client = redis.Redis.from_url(Config.REDIS_URL)
+redis_client = redis.Redis(host='clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com', decode_responses=True, ssl=True, port=6379, db=0)
 
 # Setup logging
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
