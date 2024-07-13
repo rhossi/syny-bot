@@ -17,7 +17,7 @@ run:
     - name: TWILIO_ACCOUNT_SID
       value: "ACc2fbd4e58e9b41d1afd01af1cf2c958a"
     - name: REDIS_URL
-      value: "redis://localhost:6379/0"
+      value: "rediss://clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com:6379/0"
     - name: LLM_MODEL
       value: "gpt-4o"
     - name: PORT
