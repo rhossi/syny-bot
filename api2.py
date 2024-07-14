@@ -40,7 +40,7 @@ nltk.download('punkt', quiet=True)
 
 # Initialize components
 llm = ChatOpenAI(temperature=0, model=Config.LLM_MODEL)
-redis_client = redis.from_url(Config.REDIS_URL)
+redis_client = redis.from_url(url=Config.REDIS_URL, decode_responses=True, decode_responses=True, ssl_cert_reqs=None)
 twilio_client = Client(Config.TWILIO_ACCOUNT_SID, Config.TWILIO_AUTH_TOKEN)
 db = SQLDatabase.from_uri(Config.DB_URI, sample_rows_in_table_info=3)
 repository = Repository(Config.DB_URI)
