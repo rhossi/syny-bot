@@ -20,7 +20,7 @@ run:
       value: "rediss://clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com:6379/0"
     - name: LLM_MODEL
       value: "gpt-4o"
-    - name: PORT
+    - name: APP_PORT
       value: "8080"
     - name: DATABASE_URI
       value: "postgresql://postgres:d9q4Juye$e@synydb.crae42w04nzr.us-east-1.rds.amazonaws.com:5432/postgres"

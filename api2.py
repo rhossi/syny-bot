@@ -1,8 +1,6 @@
 import os
-import logging
-import random
 import re
-from typing import Dict, Any, List
+from typing import List
 from datetime import datetime, timedelta, timezone
 import redis
 from fastapi import FastAPI, Form, BackgroundTasks
@@ -30,7 +28,7 @@ load_dotenv()
 class Config:
     DB_URI = os.getenv('DATABASE_URI')
     LLM_MODEL = os.getenv('LLM_MODEL')
-    PORT = int(os.getenv('PORT', 8000))
+    APP_PORT = os.getenv('APP_PORT')
     REDIS_URL = os.getenv('REDIS_URL')
     TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
     TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
@@ -187,4 +185,4 @@ def send_completion_message(result: str, phone_number: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=Config.PORT)
+    uvicorn.run(app, host="0.0.0.0", port=Config.APP_PORT)
