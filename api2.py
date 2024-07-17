@@ -185,4 +185,4 @@ def send_completion_message(result: str, phone_number: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=Config.APP_PORT)
+    uvicorn.run(app, host="0.0.0.0", port=int(Config.APP_PORT))
