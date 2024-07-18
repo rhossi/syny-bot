@@ -42,7 +42,7 @@ jobs:
         IMAGE_TAG: ${{ github.sha }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        ssh -o StrictHostKeyChecking=no -i private_key ec2-user@${{ env.EC2_HOST }} "
+        ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${{ env.EC2_HOST }} "
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY &&
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG &&
           docker stop fastapi-container || true &&
