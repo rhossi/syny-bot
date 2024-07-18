@@ -32,8 +32,6 @@ RUN python -m pip install --upgrade pip setuptools wheel
 
 # Install PostgreSQL and Redis
 RUN apt-get update && apt-get install -y \
-    postgresql \
-    postgresql-contrib \
     redis-server \
     && rm -rf /var/lib/apt/lists/*
 
@@ -44,24 +42,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the FastAPI app
 COPY . /app
 
-# Setup PostgreSQL
-USER postgres
-RUN /etc/init.d/postgresql start && \
-    psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" && \
-    createdb -O docker dockerdb
-
 # Switch back to root user
 USER root
 
 # Setup Redis
 RUN sed -i 's/bind 127.0.0.1/bind 0.0.0.0/' /etc/redis/redis.conf
 
-# Expose ports for FastAPI, PostgreSQL, and Redis
-EXPOSE 8080 5432 6379
+# Expose ports for FastAPI and Redis
+EXPOSE 8080 6379
 
 # Create a startup script
 RUN echo '#!/bin/bash\n\
-service postgresql start\n\
 redis-server --daemonize yes\n\
 python api2.py\n\
 ' > /start.sh && chmod +x /start.sh
