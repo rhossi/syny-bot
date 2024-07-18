@@ -7,7 +7,7 @@ on:
 env:
   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
   ECR_REPOSITORY: syny
-  EC2_HOST: ec2-54-84-115-192.compute-1.amazonaws.com
+  EC2_HOST: ec2-35-175-139-57.compute-1.amazonaws.com
 
 jobs:
   build-and-deploy:
