@@ -63,11 +63,11 @@ jobs:
             aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
             aws configure set region ${{ secrets.AWS_REGION }}
           fi
-          
+
           set -e
 
-          # Add current user to docker group
-          sudo usermod -aG docker $USER
+          # Add EC2 user to docker group
+          sudo usermod -aG docker ubuntu
           
           # Reload the user's group assignments
           newgrp docker
