@@ -44,22 +44,21 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-        ssh -o StrictHostKeyChecking=no -i private_key ec2-user@${{ env.EC2_HOST }} "
+        ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${{ env.EC2_HOST }} "
           set -e
+
           echo 'Logging in to Amazon ECR...'
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | sudo docker login --username AWS --password-stdin $ECR_REGISTRY
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin $ECR_REGISTRY &&
           
           echo 'Pulling the Docker image...'
-          sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG &&
           
           echo 'Stopping the existing container (if any)...'
-          sudo docker stop fastapi-container || true
+          docker stop fastapi-container || true &&
           
           echo 'Removing the existing container (if any)...'
-          sudo docker rm fastapi-container || true
+          docker rm fastapi-container || true &&
           
           echo 'Starting the new container...'
-          sudo docker run -d --name fastapi-container -p 80:8000 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          
-          echo 'Deployment completed successfully!'
-        " 
+          docker run -d --name fastapi-container -p 80:8000 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        "
