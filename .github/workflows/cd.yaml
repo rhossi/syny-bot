@@ -5,6 +5,9 @@ on:
     workflows: ["CI Pipeline"]
     types:
       - completed
+env:
+    ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+    ECR_REPOSITORY: syny
 
 jobs:
 
@@ -27,6 +30,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
+          set -e
           echo 'Pulling the Docker image...'
           docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG &&
           
