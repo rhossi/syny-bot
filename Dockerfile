@@ -41,6 +41,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the FastAPI app
 COPY . /app
+COPY .env /app/.env
 
 # Switch back to root user
 USER root

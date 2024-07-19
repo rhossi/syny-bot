@@ -29,16 +29,17 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
           set -e
           echo 'Pulling the Docker image...'
-          sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG &&
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG &&
           
           echo 'Stopping the existing container (if any)...'
-          sudo docker stop fastapi-container || true &&
+          docker stop fastapi-container || true &&
           
           echo 'Removing the existing container (if any)...'
-          sudo docker rm fastapi-container || true &&
+          docker rm fastapi-container || true &&
           
           echo 'Starting the new container...'
-          sudo docker run -d -p 8080:8080 --name fastapi-container $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker run -d -p 8080:8080 -e OPENAI_API_KEY=$OPENAI_API_KEY --name fastapi-container $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
