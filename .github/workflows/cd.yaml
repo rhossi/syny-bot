@@ -32,13 +32,13 @@ jobs:
       run: |
           set -e
           echo 'Pulling the Docker image...'
-          sudo docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG &&
+          docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG &&
           
           echo 'Stopping the existing container (if any)...'
-          sudo docker stop fastapi-container || true &&
+          docker stop fastapi-container || true &&
           
           echo 'Removing the existing container (if any)...'
-          sudo docker rm fastapi-container || true &&
+          docker rm fastapi-container || true &&
           
           echo 'Starting the new container...'
-          sudo docker run -d --name fastapi-container -p 8080:8080 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker run -d --name fastapi-container -p 8080:8080 $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
