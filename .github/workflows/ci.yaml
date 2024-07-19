@@ -8,7 +8,7 @@ env:
     ECR_REPOSITORY: syny
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Configure AWS credentials
