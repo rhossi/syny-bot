@@ -1,6 +1,7 @@
 import boto3
 from botocore.exceptions import ClientError
 import os
+import json
 from dotenv import load_dotenv
 from abc import ABC, abstractmethod
 
@@ -37,24 +38,21 @@ class AWSConfig(BaseConfig):
         super().__init__()
 
     def external_get_env(self, key: str) -> str:
-        secret_name = self.secret_name
-        region_name = self.regi
-
         # Create a Secrets Manager client
         session = boto3.session.Session()
         client = session.client(
             service_name='secretsmanager',
-            region_name=region_name
+            region_name=self.region_name
         )
 
         try:
             get_secret_value_response = client.get_secret_value(
-                SecretId=secret_name
+                SecretId=self.secret_name
             )
         except ClientError as e:
             # For a list of exceptions thrown, see
             # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
             raise e
 
-        secret = get_secret_value_response[key]
-        return secret
+        secret_dict = json.loads(get_secret_value_response['SecretString'])
+        return secret_dict.get(key,'not found')
