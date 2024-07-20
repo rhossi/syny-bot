@@ -18,10 +18,11 @@ class BaseConfig(ABC):
         self.TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
         self.TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
         self.AWS_SECRET_NAME = os.getenv('AWS_SECRET_NAME')
-        self.AWS_REGION_NAME = os.getenv('AWgit cS_REGION_NAME')
+        self.AWS_REGION_NAME = os.getenv('AWS_REGION_NAME')
         self.TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER')
         
     def is_dev(self) -> bool:
+        # return False
         return self.ENVIRONMENT == 'dev'
     
     def get_env(self, key: str) -> str:
@@ -55,5 +56,5 @@ class AWSConfig(BaseConfig):
             raise e
 
         secret_dict = json.loads(get_secret_value_response['SecretString'])
-        
+
         return secret_dict.get(key,'not found')

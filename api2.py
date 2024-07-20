@@ -27,6 +27,7 @@ AWS_REGION_NAME = "us-east-1"
 
 config = AWSConfig(secret_name=SECRET_NAME, region_name=AWS_REGION_NAME)
 
+# Initialize FastAPI app
 app = FastAPI()
 nltk.download('punkt', quiet=True)
 
