@@ -1,0 +1,6 @@
+aws:
+  secret_name: prod/synybot
+  region_name: us-east-1
+
+twilio:
+  from_number: +14155238886

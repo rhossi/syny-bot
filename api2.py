@@ -19,29 +19,22 @@ from langchain.agents import create_tool_calling_agent
 from langchain.agents import AgentExecutor
 import psycopg2
 from psycopg2 import sql
-from dotenv import load_dotenv
 import nltk
+from config import AWSConfig
+import yaml
 
-load_dotenv()
-
-# Configuration
-class Config:
-    DB_URI = os.getenv('DATABASE_URI')
-    LLM_MODEL = os.getenv('LLM_MODEL')
-    APP_PORT = os.getenv('APP_PORT')
-    REDIS_URL = os.getenv('REDIS_URL')
-    TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-    TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+setup = yaml.safe_load(open('config.yaml'))
+config = AWSConfig(secret_name=setup['aws']['secret_name'], region_name=setup['aws']['region_name'])
 
 app = FastAPI()
 nltk.download('punkt', quiet=True)
 
 # Initialize components
-llm = ChatOpenAI(temperature=0, model=Config.LLM_MODEL)
-redis_client = redis.from_url(url=Config.REDIS_URL, decode_responses=True, ssl_cert_reqs=None)
-twilio_client = Client(Config.TWILIO_ACCOUNT_SID, Config.TWILIO_AUTH_TOKEN)
-db = SQLDatabase.from_uri(Config.DB_URI, sample_rows_in_table_info=3)
-repository = Repository(Config.DB_URI)
+llm = ChatOpenAI(temperature=0, model=config.LLM_MODEL)
+redis_client = redis.from_url(url=config.REDIS_URL, decode_responses=True, ssl_cert_reqs=None)
+twilio_client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+db = SQLDatabase.from_uri(config.DB_URI, sample_rows_in_table_info=3)
+repository = Repository(config.DB_URI)
 
 def respond(message: str) -> str:
     response = MessagingResponse()
@@ -51,13 +44,6 @@ def respond(message: str) -> str:
 @tool
 def get_water_consumption(customer_id: str, start_date: str, end_date: str):
     """Get the water consumption for a specific customer between two dates."""
-    db_params = {
-        "dbname": "postgres",
-        "user": "postgres",
-        "password": "d9q4Juye$e",
-        "host": "synydb.crae42w04nzr.us-east-1.rds.amazonaws.com",
-        "port": "5432"
-    }
 
     query = sql.SQL("""
     WITH period_values AS (
@@ -80,7 +66,7 @@ def get_water_consumption(customer_id: str, start_date: str, end_date: str):
 
     results = []
     try:
-        with psycopg2.connect(**db_params) as conn:
+        with psycopg2.connect(config.DB_URI) as conn:
             with conn.cursor() as cur:
                 cur.execute(query.format(
                     customer_id=sql.Literal(customer_id),
@@ -133,7 +119,7 @@ async def send_chunked_message(result: str, phone_number: str):
         message = prefix + chunk
         twilio_client.messages.create(
             to=f'whatsapp:{phone_number}',
-            from_='whatsapp:+14155238886',
+            from_=f'whatsapp:{setup['twilio']['from_number']}',
             body=message
         )
         print(f"Sent chunk {i}/{len(chunks)} to user")
@@ -157,7 +143,7 @@ def process_message(phone_number: str, message: str) -> str:
     ).partial(time=datetime.now(timezone.utc).isoformat()).partial(customer_id=customer_ids)
     print(customer_ids)
     
-    message_history = RedisChatMessageHistory(url=Config.REDIS_URL, ttl=5*60, session_id=phone_number)
+    message_history = RedisChatMessageHistory(url=config.REDIS_URL, ttl=5*60, session_id=phone_number)
     memory = ConversationBufferMemory(chat_memory=message_history, memory_key="chat_history", return_messages=True)
     agent = create_tool_calling_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=False, memory=memory)
@@ -185,4 +171,4 @@ def send_completion_message(result: str, phone_number: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=int(Config.APP_PORT))
+    uvicorn.run(app, host="0.0.0.0", port=int(config.APP_PORT))
