@@ -21,10 +21,11 @@ import psycopg2
 from psycopg2 import sql
 import nltk
 from config import AWSConfig
-import yaml
 
-setup = yaml.safe_load(open('config.yaml'))
-config = AWSConfig(secret_name=setup['aws']['secret_name'], region_name=setup['aws']['region_name'])
+SECRET_NAME = "prod/syny-bot"
+AWS_REGION_NAME = "us-east-1"
+
+config = AWSConfig(secret_name=SECRET_NAME, region_name=AWS_REGION_NAME)
 
 app = FastAPI()
 nltk.download('punkt', quiet=True)
