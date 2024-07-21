@@ -22,7 +22,8 @@ class BaseConfig(ABC):
         self.TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER')
         
     def is_dev(self) -> bool:
-        return self.ENVIRONMENT == 'dev'
+        return False
+        # return self.ENVIRONMENT == 'dev'
     
     def get_env(self, key: str) -> str:
         return os.getenv(key) if self.is_dev() else self.external_get_env(key)
