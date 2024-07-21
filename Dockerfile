@@ -33,6 +33,8 @@ RUN python -m pip install --upgrade pip setuptools wheel
 # Install PostgreSQL and Redis
 RUN apt-get update && apt-get install -y \
     redis-server \
+    curl \
+    vim \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python packages
