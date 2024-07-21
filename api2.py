@@ -32,7 +32,7 @@ app = FastAPI()
 nltk.download('punkt', quiet=True)
 
 # Initialize components
-llm = ChatOpenAI(temperature=0, model=config.LLM_MODEL)
+llm = ChatOpenAI(temperature=0, model=config.LLM_MODEL, openai_api_key=config.OPENAI_API_KEY)
 redis_client = redis.from_url(url=config.REDIS_URL, decode_responses=True, ssl_cert_reqs=None)
 twilio_client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
 db = SQLDatabase.from_uri(config.DB_URI, sample_rows_in_table_info=3)
