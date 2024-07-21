@@ -31,5 +31,5 @@ def get_secret(key):
     secret_dict = json.loads(get_secret_value_response['SecretString'])
     return secret_dict.get(key,'not found')
     # Your code goes here.
-secret = get_secret('LLM_MODEL')
+secret = get_secret('OPENAI_API_KEY')
 print(secret)

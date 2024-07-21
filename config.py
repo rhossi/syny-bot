@@ -10,17 +10,17 @@ class BaseConfig(ABC):
     def __init__(self) -> None:
         load_dotenv()
 
-        self.ENVIRONMENT = os.getenv('ENVIRONMENT') or 'prod'
-        self.DB_URI = os.getenv('DATABASE_URI')
-        self.LLM_MODEL = os.getenv('LLM_MODEL')
-        self.APP_PORT = os.getenv('APP_PORT')
-        self.REDIS_URL = os.getenv('REDIS_URL')
-        self.TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
-        self.TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
-        self.AWS_SECRET_NAME = os.getenv('AWS_SECRET_NAME')
-        self.AWS_REGION_NAME = os.getenv('AWS_REGION_NAME')
-        self.TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER')
-        self.OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+        self.ENVIRONMENT = self.get_env('ENVIRONMENT') or 'prod'
+        self.DB_URI = self.get_env('DATABASE_URI')
+        self.LLM_MODEL = self.get_env('LLM_MODEL')
+        self.APP_PORT = self.get_env('APP_PORT')
+        self.REDIS_URL = self.get_env('REDIS_URL')
+        self.TWILIO_AUTH_TOKEN = self.get_env('TWILIO_AUTH_TOKEN')
+        self.TWILIO_ACCOUNT_SID = self.get_env('TWILIO_ACCOUNT_SID')
+        self.AWS_SECRET_NAME = self.get_env('AWS_SECRET_NAME')
+        self.AWS_REGION_NAME = self.get_env('AWS_REGION_NAME')
+        self.TWILIO_FROM_NUMBER = self.get_env('TWILIO_FROM_NUMBER')
+        self.OPENAI_API_KEY = self.get_env('OPENAI_API_KEY')
         
     def is_dev(self) -> bool:
         return False
