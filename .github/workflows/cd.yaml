@@ -30,8 +30,6 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
       run: |
           set -e
@@ -44,6 +42,14 @@ jobs:
           echo 'Removing the existing container (if any)...'
           docker rm fastapi-container || true &&
           
+          # Retrieve the credentials from EC2 instance metadata
+          TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+          CREDENTIALS_JSON=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/iam/security-credentials/cicd-ec2-role)
+
+          # Extract AccessKeyId and SecretAccessKey using jq
+          ACCESS_KEY_ID=$(echo $CREDENTIALS_JSON | jq -r '.AccessKeyId')
+          SECRET_ACCESS_KEY=$(echo $CREDENTIALS_JSON | jq -r '.SecretAccessKey')
+
           echo 'Starting the new container...'
           docker run -d -p 8080:8080 \
             -e OPENAI_API_KEY=$OPENAI_API_KEY \
