@@ -20,6 +20,7 @@ class BaseConfig(ABC):
         self.AWS_SECRET_NAME = os.getenv('AWS_SECRET_NAME')
         self.AWS_REGION_NAME = os.getenv('AWS_REGION_NAME')
         self.TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER')
+        self.OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
         
     def is_dev(self) -> bool:
         return False
