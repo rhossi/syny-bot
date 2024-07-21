@@ -121,7 +121,7 @@ async def send_chunked_message(result: str, phone_number: str):
         message = prefix + chunk
         twilio_client.messages.create(
             to=f'whatsapp:{phone_number}',
-            from_=f'whatsapp:{setup['twilio']['from_number']}',
+            from_=f'whatsapp:{config.TWILIO_FROM_NUMBER}',
             body=message
         )
         print(f"Sent chunk {i}/{len(chunks)} to user")
