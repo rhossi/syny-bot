@@ -30,6 +30,8 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        AWS-ACCESS-KEY-ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS-SECRET-ACCESS-KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
           set -e
           echo 'Pulling the Docker image...'
@@ -42,4 +44,4 @@ jobs:
           docker rm fastapi-container || true &&
           
           echo 'Starting the new container...'
-          docker run -d -p 8080:8080 -e OPENAI_API_KEY=$OPENAI_API_KEY --name fastapi-container $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker run -d -p 8080:8080 -e AWS_ACCESS_KEY_ID=$AWS-ACCESS-KEY-ID AWS_SECRET_ACCESS_KEY=$AWS-SECRET-ACCESS-KEY --name fastapi-container $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
