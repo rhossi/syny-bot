@@ -10,7 +10,7 @@ class BaseConfig(ABC):
     def __init__(self) -> None:
         load_dotenv()
 
-        self.ENVIRONMENT = os.getenv('ENVIRONMENT') or 'dev'
+        self.ENVIRONMENT = os.getenv('ENVIRONMENT') or 'prod'
         self.DB_URI = os.getenv('DATABASE_URI')
         self.LLM_MODEL = os.getenv('LLM_MODEL')
         self.APP_PORT = os.getenv('APP_PORT')
@@ -22,7 +22,6 @@ class BaseConfig(ABC):
         self.TWILIO_FROM_NUMBER = os.getenv('TWILIO_FROM_NUMBER')
         
     def is_dev(self) -> bool:
-        # return False
         return self.ENVIRONMENT == 'dev'
     
     def get_env(self, key: str) -> str:
