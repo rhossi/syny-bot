@@ -6,6 +6,7 @@
 import boto3
 from botocore.exceptions import ClientError
 import json
+import os
 
 def get_secret(key):
 
@@ -15,6 +16,8 @@ def get_secret(key):
     # Create a Secrets Manager client
     session = boto3.session.Session()
     client = session.client(
+        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'),
         service_name='secretsmanager',
         region_name=region_name
     )
@@ -31,5 +34,5 @@ def get_secret(key):
     secret_dict = json.loads(get_secret_value_response['SecretString'])
     return secret_dict.get(key,'not found')
     # Your code goes here.
-secret = get_secret('OPENAI_API_KEY')
+secret = get_secret('LLM_MODEL')
 print(secret)
