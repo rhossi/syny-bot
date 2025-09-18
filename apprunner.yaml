@@ -11,16 +11,16 @@ run:
   command: python3 api2.py
   env:
     - name: OPENAI_API_KEY
-      value: "sk-proj-34gmnYXvYqXUnBx6Rv8AT3BlbkFJkXXqBgAnkVAO1I7tmxjY"
+      value: "xxxxx"
     - name: TWILIO_AUTH_TOKEN
-      value: "29c51f74368c481a2cddf99640e91e27"
+      value: "xxxx"
     - name: TWILIO_ACCOUNT_SID
-      value: "ACc2fbd4e58e9b41d1afd01af1cf2c958a"
+      value: "xxxx"
     - name: REDIS_URL
-      value: "rediss://clustercfg.synybot-cache.c6qmed.use1.cache.amazonaws.com:6379/0"
+      value: "rediss://xxxx
     - name: LLM_MODEL
       value: "gpt-4o"
     - name: APP_PORT
       value: "8080"
     - name: DATABASE_URI
-      value: "postgresql://postgres:d9q4Juye$e@synydb.crae42w04nzr.us-east-1.rds.amazonaws.com:5432/postgres"
+      value: "postgresql://xxxx"
